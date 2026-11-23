@@ -1,10 +1,10 @@
 // =====================================================================================
 //  C2C12_MyHC2_Quant.ijm      (Fiji / ImageJ 1.53k or newer)
 //
-//  Semi-automated version of your manual MyHC2 protocol (DAPI + phalloidin + MyHC2 images):
+//  Semi-automated version of manual MyHC2 protocol (DAPI + phalloidin + MyHC2 images):
 //    1. Calibrate (Image > Properties), split channels, display-only brightness/contrast
-//    2. DAPI nuclei: duplicate -> Gaussian -> threshold (YOU adjust) -> Watershed -> Analyze Particles
-//    3. MyHC2 mask: duplicate -> (optional Subtract Background) -> Gaussian -> threshold, starts at Default (YOU adjust)
+//    2. DAPI nuclei: duplicate -> Gaussian -> threshold (Manually adjusted) -> Watershed -> Analyze Particles
+//    3. MyHC2 mask: duplicate -> (optional Subtract Background) -> Gaussian -> threshold, starts at Default (Manually adjusted)
 //         -> Convert to Mask -> Open / Close / Fill Holes -> OUTLINE -> Analyze Particles (include holes)
 //    4. MyHC2-positive area fraction, number of MyHC2 objects
 //    5. Differentiation index and fusion index (nuclei inside MyHC2 objects / total DAPI nuclei)
@@ -12,11 +12,11 @@
 //    7. Alignment: (A) object-based (angles of the fitted ellipses), (B) structure tensor on the MyHC2
 //       channel = what OrientationJ computes (coherency + energy thresholds), optional OrientationJ plugin outputs
 //
-//  The Outline step before Analyze Particles is kept as a fixed part of the workflow (you validated it manually).
+//  The Outline step before Analyze Particles is kept as a fixed part of the workflow (validated manually).
 //  Analyze Particles runs on the outlined image with "include holes", so each object is measured as the full
 //  filled myotube. The macro then CHECKS that the objects really sit on MyHC2-positive pixels (polarity guard).
 //
-//  YOU stay in control of: brightness/contrast, DAPI threshold and MyHC2 threshold.
+//  Manual control of: brightness/contrast, DAPI threshold and MyHC2 threshold.
 //  Results, per image, in  <folder>/C2C12_MyHC2_results/<image>/ :
 //     <image>_summary.csv                one row of results/quantifications
 //     <image>_MyHC2_objects.csv          one row per MyHC2 object (size, shape, angle, nuclei count, ...)
@@ -103,7 +103,7 @@ Dialog.addString("MyHC2 object size filter", "150-Infinity");
 Dialog.addCheckbox("Size filter in PIXEL units", true);
 Dialog.addToSameRow();
 Dialog.addCheckbox("Exclude objects on edges", true);
-Dialog.addMessage("The threshold always starts at Default; you adjust it by hand.");
+Dialog.addMessage("The threshold always starts at Default; adjusted by hand.");
 Dialog.show();
 sigmaMyhc     = Dialog.getNumber();
 rollRadius    = Dialog.getNumber();
@@ -411,7 +411,7 @@ function processImage(origID, base) {
     selectImage(myhcID); getStatistics(aa, myhcMean1);
     selectImage(dapiID); getStatistics(aa, dapiMean1);
     if (abs(myhcMean1 - myhcMean0) > 0.001 || abs(dapiMean1 - dapiMean0) > 0.001)
-        exit("Brightness/Contrast 'Apply' was clicked - the pixel data were changed.\nYour original file is untouched. Run the macro again and do NOT click Apply.");
+        exit("Brightness/Contrast 'Apply' was clicked - the pixel data were changed.\nOriginal file is untouched. Run the macro again and do NOT click Apply.");
 
     // ---------- 2. COUNT DAPI NUCLEI (same as the myogenin macro) ----------
     selectImage(dapiID);
